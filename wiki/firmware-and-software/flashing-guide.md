@@ -26,9 +26,9 @@ flowchart LR
     - Включает сборки наблюдателей VBart Observer.
 2. **[flasher.meshcore.co.uk](https://flasher.meshcore.co.uk)**:
     - Официальный глобальный веб-прошивальщик проекта MeshCore.
-3. **[mrekin.duckdns.org/flasher](https://mrekin.duckdns.org/flasher)**:
-    - Каталог кастомных сборок от российского разработчика `@mrekin`.
-    - Оптимизированные и облегченные версии для платформ nRF52 и ESP32.
+3. **[flashmesh.ru](https://flashmesh.ru)** (зеркало: `mrekin.duckdns.org`):
+    - Каталог кастомных оптимизированных сборок от российского разработчика `@mrekin`.
+    - Облегченные версии и энергосберегающие прошивки для платформ nRF52 и ESP32.
 
 !!! note "Прошивка и возврат на Meshtastic"
     Инструкция по работе со стоковым прошивальщиком `flasher.meshtastic.org` и процедура отката при тестировании вынесены в специальный раздел [Прошивка и клиентский софт Meshtastic](../meshtastic/firmware-and-apps.md).
