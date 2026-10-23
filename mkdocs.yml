@@ -4,6 +4,7 @@ site_description: База знаний регионального сообще�
 site_author: Meshcore СКФО
 repo_name: yamixst/meshcore-skfo-wiki
 repo_url: https://github.com/yamixst/meshcore-skfo-wiki
+copyright: "© 2026 Meshcore СКФО · Актуальность данных: 23 октября 2026 г."
 
 theme:
   name: material
