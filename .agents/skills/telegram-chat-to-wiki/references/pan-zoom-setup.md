@@ -4,27 +4,21 @@
 
 ---
 
-## 1. Архитектура решения и критический нюанс Material for MkDocs
+## 1. Архитектура решения и критические нюансы
 
-Решение базируется на связке двух легковесных библиотек, сохраненных локально в репозитории (для автономности и независимости от внешних CDN):
+Решение базируется на связке двух легковесных библиотек, сохраненных локально в репозитории:
 
 1. **`mermaid.min.js`** — движок рендеринга диаграмм из текстовой разметки в векторные элементы `<svg>`.
-2. **`svg-pan-zoom.min.js`** — библиотека для управления SVG (зум колесиком мыши/жестом, панорамирование перетаскиванием, встроенные кнопки управления `+`, `−`, `↺ Reset`).
-3. **`mermaid.js` (кастомный инициализатор)** — компилирует диаграммы, монтирует кнопки зума и подключает pan-zoom.
+2. **`svg-pan-zoom.min.js`** — библиотека для управления SVG.
+3. **`mermaid.js` (кастомный инициализатор)** — компилирует диаграммы, монтирует кнопки зума, исключает перехват скролла и обеспечивает поддержку сенсорных экранов.
 
 > [!IMPORTANT]
-> **Критический нюанс `pymdownx.superfences` и Material for MkDocs**:
-> Если в `mkdocs.yml` указать `format: !!python/name:pymdownx.superfences.fence_code_format`, MkDocs сгенерирует `<pre class="mermaid"><code>...</code></pre>`.
-> Тема Material for MkDocs перехватывает все `pre.mermaid` и **инкапсулирует их в закрытый Shadow DOM (`mode: 'closed'`)**, делая невозможным доступ к `<svg>` для сторонних скриптов панорамирования!
-> **Решение:** использовать `fence_div_format`:
-> ```yaml
->   - pymdownx.superfences:
->       custom_fences:
->         - name: mermaid
->           class: mermaid
->           format: !!python/name:pymdownx.superfences.fence_div_format
-> ```
-> Это создает `<div class="mermaid">...</div>`, не трогается Shadow DOM темы и полностью доступно для интерактивного Pan & Zoom.
+> **1. Защита от Shadow DOM в Material for MkDocs**:
+> Использовать `format: !!python/name:pymdownx.superfences.fence_div_format` в `mkdocs.yml`, чтобы тема не инкапсулировала диаграммы в закрытый Shadow DOM.
+>
+> **2. Защита от ловушки скролла (Scroll Hijacking)**:
+> - На Desktop колесико мыши по умолчанию **прокручивает страницу сайта**, не застревая на схеме. Зум колесом активируется только при зажатой клавише `Ctrl` / `Cmd` (с показом плавающей подсказки).
+> - На Mobile один палец **свободно скроллит страницу**. Масштабирование и панорамирование на тач-экранах выполняется жестом двумя пальцами (pinch/pan), либо через кнопки `+`, `−`, `↺`, либо через кнопку полноэкранного режима `⛶`.
 
 ---
 
@@ -38,13 +32,6 @@ wiki/
 │   └── mermaid.js
 └── stylesheets/
     └── extra.css
-```
-
-### Локальные библиотеки:
-Скачать вендорные скрипты:
-```bash
-curl -sSL -o wiki/javascripts/mermaid.min.js https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js
-curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js
 ```
 
 ---
@@ -106,7 +93,6 @@ curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/s
   align-items: center;
   justify-content: center;
   cursor: grab;
-  /* Изоляция типографики диаграмм от наследования стилей .md-typeset */
   line-height: normal !important;
   letter-spacing: normal !important;
 }
@@ -122,7 +108,6 @@ curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/s
   font-family: var(--md-text-font, "Inter", sans-serif) !important;
 }
 
-/* Фиксация шрифта и высоты строки внутри блоков Mermaid */
 .mermaid-viewport .label,
 .mermaid-viewport .nodeLabel,
 .mermaid-viewport .edgeLabel {
@@ -154,112 +139,57 @@ curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/s
   line-height: 1.2 !important;
   font-size: 11px !important;
 }
-```
 
----
-
-## 4. Скрипт инициализации (`mermaid.js`)
-
-Скрипт рендерит `.mermaid`, монтирует элементы управления зумом и связывает с `svg-pan-zoom`:
-
-```javascript
-const initMermaidWithPanZoom = async () => {
-  if (typeof mermaid === "undefined") return;
-
-  const isDark = document.body.getAttribute("data-md-color-scheme") === "slate";
-  mermaid.initialize({
-    startOnLoad: false,
-    securityLevel: "loose",
-    theme: isDark ? "dark" : "default",
-  });
-
-  const containers = document.querySelectorAll("div.mermaid, pre.mermaid");
-  if (!containers.length) return;
-
-  for (let i = 0; i < containers.length; i++) {
-    const el = containers[i];
-    if (el.dataset.rendered === "true") continue;
-    if (!el.isConnected) continue;
-    el.dataset.rendered = "true";
-
-    const code = el.textContent.trim();
-    if (!code) continue;
-
-    const graphId = `mermaid-graph-${Date.now()}-${i}`;
-
-    try {
-      const { svg, bindFunctions } = await mermaid.render(graphId, code);
-      if (!el.isConnected) continue;
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "mermaid-wrapper";
-
-      const controls = document.createElement("div");
-      controls.className = "mermaid-controls";
-      controls.innerHTML = `
-        <button class="mermaid-btn" data-action="zoom-in" title="Увеличить">+</button>
-        <button class="mermaid-btn" data-action="zoom-out" title="Уменьшить">−</button>
-        <button class="mermaid-btn" data-action="reset" title="Сбросить">↺</button>
-      `;
-
-      const viewport = document.createElement("div");
-      viewport.className = "mermaid-viewport";
-      viewport.innerHTML = svg;
-
-      wrapper.appendChild(controls);
-      wrapper.appendChild(viewport);
-
-      if (el.parentNode) {
-        el.parentNode.replaceChild(wrapper, el);
-      } else {
-        el.replaceWith(wrapper);
-      }
-
-      if (typeof bindFunctions === "function") bindFunctions(viewport);
-
-      const svgElement = viewport.querySelector("svg");
-      if (!svgElement) continue;
-
-      svgElement.removeAttribute("height");
-      svgElement.style.width = "100%";
-      svgElement.style.height = "100%";
-      svgElement.style.maxWidth = "100%";
-
-      if (typeof svgPanZoom !== "undefined") {
-        try {
-          const pz = svgPanZoom(svgElement, {
-            zoomEnabled: true,
-            controlIconsEnabled: false,
-            fit: true,
-            center: true,
-            minZoom: 0.2,
-            maxZoom: 15,
-            zoomScaleSensitivity: 0.25,
-            dblClickZoomEnabled: true,
-            mouseWheelZoomEnabled: true,
-            preventMouseEventsDefault: true,
-          });
-
-          controls.querySelector('[data-action="zoom-in"]').addEventListener("click", (e) => { e.preventDefault(); pz.zoomIn(); });
-          controls.querySelector('[data-action="zoom-out"]').addEventListener("click", (e) => { e.preventDefault(); pz.zoomOut(); });
-          controls.querySelector('[data-action="reset"]').addEventListener("click", (e) => { e.preventDefault(); pz.reset(); pz.fit(); pz.center(); });
-          window.addEventListener("resize", () => { pz.resize(); pz.fit(); pz.center(); });
-        } catch (pzErr) {
-          console.warn(pzErr);
-        }
-      }
-    } catch (err) {
-      console.error("Mermaid error:", err);
-    }
-  }
-};
-
-if (typeof document$ !== "undefined") {
-  document$.subscribe(() => { initMermaidWithPanZoom(); });
+/* Полноэкранный режим */
+.mermaid-wrapper.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: var(--md-default-bg-color) !important;
 }
-if (document.readyState === "complete" || document.readyState === "interactive") {
-  initMermaidWithPanZoom();
-} else {
-  document.addEventListener("DOMContentLoaded", initMermaidWithPanZoom);
+
+.mermaid-wrapper.is-fullscreen .mermaid-controls {
+  top: 16px;
+  right: 16px;
+  padding: 4px 8px;
+  gap: 6px;
+}
+
+.mermaid-wrapper.is-fullscreen .mermaid-btn {
+  font-size: 16px;
+  padding: 6px 12px;
+}
+
+.mermaid-wrapper.is-fullscreen .mermaid-viewport {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Подсказка прокрутки */
+.mermaid-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 25, 35, 0.88);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 25;
+  white-space: nowrap;
+}
+
+.mermaid-hint.is-visible {
+  opacity: 1;
 }
 ```

@@ -64,6 +64,22 @@ const initMermaidWithPanZoom = async () => {
     `,
   });
 
+  // Вспомогательная функция показа плавающей подсказки
+  const showHint = (wrapper, message) => {
+    let hint = wrapper.querySelector(".mermaid-hint");
+    if (!hint) {
+      hint = document.createElement("div");
+      hint.className = "mermaid-hint";
+      wrapper.appendChild(hint);
+    }
+    hint.textContent = message;
+    hint.classList.add("is-visible");
+    clearTimeout(wrapper._hintTimer);
+    wrapper._hintTimer = setTimeout(() => {
+      hint.classList.remove("is-visible");
+    }, 1500);
+  };
+
   // Находим все контейнеры диаграмм (с поддержкой fence_div_format и стандартных pre)
   const containers = document.querySelectorAll("div.mermaid, pre.mermaid");
   if (!containers.length) return;
@@ -97,6 +113,7 @@ const initMermaidWithPanZoom = async () => {
         <button class="mermaid-btn" data-action="zoom-in" title="Увеличить (Приблизить)">+</button>
         <button class="mermaid-btn" data-action="zoom-out" title="Уменьшить (Отдалить)">−</button>
         <button class="mermaid-btn" data-action="reset" title="Сбросить масштаб и положение">↺</button>
+        <button class="mermaid-btn" data-action="fullscreen" title="Развернуть на весь экран">⛶</button>
       `;
 
       const viewport = document.createElement("div");
@@ -126,7 +143,7 @@ const initMermaidWithPanZoom = async () => {
       svgElement.style.height = "100%";
       svgElement.style.maxWidth = "100%";
 
-      // Инициализируем svg-pan-zoom
+      // Инициализируем svg-pan-zoom БЕЗ автоматического перехвата колесика и с отключенными touch-слушателями
       if (typeof svgPanZoom !== "undefined") {
         try {
           const pz = svgPanZoom(svgElement, {
@@ -137,9 +154,15 @@ const initMermaidWithPanZoom = async () => {
             minZoom: 0.2,
             maxZoom: 15,
             zoomScaleSensitivity: 0.25,
-            dblClickZoomEnabled: true,
-            mouseWheelZoomEnabled: true,
-            preventMouseEventsDefault: true,
+            dblClickZoomEnabled: false,
+            mouseWheelZoomEnabled: false, // Отключаем автоматический захват колесика
+            preventMouseEventsDefault: false, // Не блокируем нативный скролл страницы браузером
+            customEventsHandler: {
+              // Отключаем встроенные touch-события, чтобы 1 палец на телефоне свободно прокручивал страницу
+              haltEventListeners: ["touchstart", "touchend", "touchmove", "touchleave", "touchcancel"],
+              init: () => {},
+              destroy: () => {},
+            },
           });
 
           // Назначаем обработчики кнопок
@@ -160,11 +183,140 @@ const initMermaidWithPanZoom = async () => {
             pz.center();
           });
 
+          // Кнопка полноэкранного режима
+          const fsBtn = controls.querySelector('[data-action="fullscreen"]');
+          fsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const isFs = wrapper.classList.toggle("is-fullscreen");
+            if (isFs) {
+              fsBtn.innerHTML = "✕";
+              fsBtn.title = "Свернуть (Выйти из полноэкранного режима)";
+              document.body.style.overflow = "hidden";
+            } else {
+              fsBtn.innerHTML = "⛶";
+              fsBtn.title = "Развернуть на весь экран";
+              document.body.style.overflow = "";
+            }
+            setTimeout(() => {
+              pz.resize();
+              pz.fit();
+              pz.center();
+            }, 60);
+          });
+
+          window.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && wrapper.classList.contains("is-fullscreen")) {
+              wrapper.classList.remove("is-fullscreen");
+              fsBtn.innerHTML = "⛶";
+              fsBtn.title = "Развернуть на весь экран";
+              document.body.style.overflow = "";
+              setTimeout(() => {
+                pz.resize();
+                pz.fit();
+                pz.center();
+              }, 60);
+            }
+          });
+
           window.addEventListener("resize", () => {
             pz.resize();
             pz.fit();
             pz.center();
           });
+
+          // --- Умное поведение прокрутки колесом мыши (Desktop) ---
+          // Обычный скролл прокручивает страницу вниз/вверх.
+          // Зум схемы срабатывает ТОЛЬКО при зажатой клавише Ctrl / Cmd.
+          viewport.addEventListener("wheel", (e) => {
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              if (e.deltaY < 0) {
+                pz.zoomIn();
+              } else {
+                pz.zoomOut();
+              }
+            } else {
+              // Страница скроллится свободно, показываем подсказку
+              showHint(wrapper, "Удерживайте Ctrl для масштабирования колесиком");
+            }
+          }, { passive: false });
+
+          // --- Умное поведение для сенсорных экранов (Mobile / Touch) ---
+          // 1 палец — нативная прокрутка страницы сайта (не перехватывается).
+          // 2 пальца — масштабирование (pinch) и панорамирование схемы.
+          // В полноэкранном режиме (Fullscreen) 1 палец свободно перемещает схему.
+          let initialDist = null;
+          let initialCenter = null;
+          let singleTouchStart = null;
+
+          viewport.addEventListener("touchstart", (e) => {
+            if (e.touches.length === 2) {
+              e.preventDefault();
+              const t1 = e.touches[0];
+              const t2 = e.touches[1];
+              initialDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+              initialCenter = {
+                x: (t1.clientX + t2.clientX) / 2,
+                y: (t1.clientY + t2.clientY) / 2,
+              };
+            } else if (e.touches.length === 1) {
+              if (wrapper.classList.contains("is-fullscreen")) {
+                e.preventDefault();
+                singleTouchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+              } else {
+                singleTouchStart = null;
+              }
+            }
+          }, { passive: false });
+
+          viewport.addEventListener("touchmove", (e) => {
+            if (e.touches.length === 2 && initialDist) {
+              e.preventDefault();
+              const t1 = e.touches[0];
+              const t2 = e.touches[1];
+              const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+              const currentCenter = {
+                x: (t1.clientX + t2.clientX) / 2,
+                y: (t1.clientY + t2.clientY) / 2,
+              };
+
+              // Панорамирование двумя пальцами
+              const dx = currentCenter.x - initialCenter.x;
+              const dy = currentCenter.y - initialCenter.y;
+              pz.panBy({ x: dx, y: dy });
+
+              // Пинч-зум
+              const factor = currentDist / initialDist;
+              if (Math.abs(factor - 1) > 0.04) {
+                if (factor > 1) {
+                  pz.zoomIn();
+                } else {
+                  pz.zoomOut();
+                }
+                initialDist = currentDist;
+              }
+
+              initialCenter = currentCenter;
+            } else if (e.touches.length === 1 && wrapper.classList.contains("is-fullscreen") && singleTouchStart) {
+              e.preventDefault();
+              const t = e.touches[0];
+              const dx = t.clientX - singleTouchStart.x;
+              const dy = t.clientY - singleTouchStart.y;
+              pz.panBy({ x: dx, y: dy });
+              singleTouchStart = { x: t.clientX, y: t.clientY };
+            }
+          }, { passive: false });
+
+          viewport.addEventListener("touchend", (e) => {
+            if (e.touches.length < 2) {
+              initialDist = null;
+              initialCenter = null;
+            }
+            if (e.touches.length === 0) {
+              singleTouchStart = null;
+            }
+          });
+
         } catch (pzErr) {
           console.warn("svgPanZoom init notice:", pzErr);
         }
