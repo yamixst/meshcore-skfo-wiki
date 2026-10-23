@@ -8,8 +8,14 @@
 
 Самый быстрый и надежный способ прошивки оборудования без установки сложного инструментария разработки — использование веб-прошивальщиков. Для работы требуется браузер на движке Chromium (Google Chrome, Microsoft Edge, Яндекс.Браузер, Brave) с поддержкой **Web Serial API**.
 
-```text
-[ Плата через USB ] <---(Web Serial API)---> [ Браузер Chrome / Edge ] <---> [ Каталог прошивок ]
+```mermaid
+flowchart LR
+    DEV["Плата через USB<br/>(ESP32-S3 / nRF52840)"]
+    BROWSER["Браузер Chrome / Edge / Yandex<br/>(Драйвер Web Serial API)"]
+    REPO["Онлайн-каталог прошивок<br/>(skmesh.ru / flasher.meshtastic.org)"]
+
+    DEV <-->|Прямой обмен по USB-COM| BROWSER
+    BROWSER <-->|Загрузка актуального .bin / .hex| REPO
 ```
 
 ### Рекомендуемые ресурсы:
