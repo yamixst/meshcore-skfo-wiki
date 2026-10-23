@@ -90,7 +90,7 @@ nav:
       - Быстрый старт: guides-and-faq/quick-start.md
       - Решение проблем (Troubleshooting): guides-and-faq/troubleshooting.md
       - Юридические аспекты и крыши: guides-and-faq/legal-aspects.md
-  - Раздел Meshtastic (Архив):
+  - Meshtastic:
       - Обзор и причины миграции: meshtastic/index.md
       - Meshtastic vs MeshCore: meshtastic/meshtastic-vs-meshcore.md
       - Архивные частоты и каналы: meshtastic/legacy-frequencies-and-channels.md
