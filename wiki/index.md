@@ -1,8 +1,11 @@
-# База знаний сообщества Meshcore СКФО (Meshtastic & LoRa)
+# База знаний региональной сети MeshCore СКФО
 
-Добро пожаловать в локальную Wiki регионального радиолюбительского сообщества цифровой ячеистой радиосвязи (LoRa Mesh) на Северном Кавказе: Ставропольский край, КМВ (Кавказские Минеральные Воды), КБР, КЧР, РСО-Алания и соседние регионы.
+Добро пожаловать в официальную базу знаний регионального радиолюбительского сообщества цифровой ячеистой радиосвязи (LoRa Mesh) на Северном Кавказе: Ставропольский край, КМВ (Кавказские Минеральные Воды), КБР, КЧР, РСО-Алания и соседние регионы.
 
-Wiki создана на основе реального практического опыта участников сообщества: инженерных тестов, замеров на NanoVNA, развертывания высотных ретрансляторов на господствующих вершинах Кавказа и перехода с широкополосного протокола Meshtastic на узкополосный MeshCore.
+!!! important "Полный переход на MeshCore"
+    Ставропольское и Северо-Кавказское сообщество полностью перешло с протокола Meshtastic на микроядро **MeshCore**. Вся основная база знаний посвящена исключительно архитектуре, радиоканалам, оборудованию и прошивкам MeshCore. Все материалы по протоколу Meshtastic, истории миграции и архивным настройкам вынесены в специальный раздел **[Meshtastic (Архив и история перехода)](meshtastic/index.md)**.
+
+Wiki создана на основе реального практического опыта участников сообщества: инженерных тестов, замеров на NanoVNA, развертывания высотных ретрансляторов на господствующих вершинах Кавказа и перехода на узкополосный регламентный профиль MeshCore (868.900 МГц, BW 62.5 кГц, SF 8, CR 8).
 
 ---
 
@@ -24,12 +27,12 @@ Wiki создана на основе реального практическо�
 - [Маршрутизация, Scopes и мосты](network/routing-and-scopes.md) — разделение потоков по гео-зонам (ISO 3166-2), фильтрация флуда denyf, кросс-частотные шлюзы.
 - [MQTT, наблюдатели и сервисы](network/mqtt-and-observers.md) — шлюз onemesh.ru, топики msh/RU/STV, сервис SkMesh.ru, прошивка VBart Observer.
 
-### 3. [Прошивки и программное обеспечение (Firmware & Software)](firmware-and-software/meshtastic-vs-meshcore.md)
-Инструменты прошивки и клиентские приложения:
+### 3. [Прошивки и программное обеспечение MeshCore (Firmware & Software)](firmware-and-software/meshcore-architecture.md)
+Архитектура микроядра, прошивка и клиентские приложения:
 
-- [Meshtastic vs MeshCore](firmware-and-software/meshtastic-vs-meshcore.md) — почему сообщество мигрировало весной 2026 года (управляемая маршрутизация, 64 хопа, RoomServer).
-- [Инструкция по прошивке](firmware-and-software/flashing-guide.md) — веб-флешеры, CLI (esptool/nrfutil), OTAFIX Bootloader для nRF52, энергосберегающие сборки.
-- [Клиентские приложения](firmware-and-software/client-apps.md) — MeshCore Open Advanced (MCOa), мобильные и десктопные клиенты, стек Reticulum.
+- [Архитектура и протокол MeshCore](firmware-and-software/meshcore-architecture.md) — направленный роутинг до 64 хопов, RoomServer (BBS), изоляция трафика Scopes.
+- [Инструкция по прошивке MeshCore](firmware-and-software/flashing-guide.md) — веб-флешеры (skmesh.ru, flasher.meshcore.co.uk), CLI (esptool/nrfutil), OTAFIX Bootloader для nRF52, энергосберегающие сборки.
+- [Клиентские приложения](firmware-and-software/client-apps.md) — MeshCore Open Advanced (MCOa), мобильные и веб-клиенты, интеграция CivTAK, стек Reticulum.
 
 ### 4. [Топография и география сети СКФО (Topology & Geography)](topology-and-geography/regional-backbone.md)
 Радиопокрытие региона и господствующие высоты:
@@ -41,9 +44,18 @@ Wiki создана на основе реального практическо�
 ### 5. [Инструкции и FAQ (Guides & FAQ)](guides-and-faq/quick-start.md)
 Руководства для начинающих и правовая база:
 
-- [Быстрый старт новичка](guides-and-faq/quick-start.md) — пошаговый план: покупка первой платы, заливка прошивки, базовая настройка параметров.
+- [Быстрый старт новичка](guides-and-faq/quick-start.md) — пошаговый план: покупка первой платы, заливка прошивки MeshCore, базовая настройка параметров.
 - [Решение проблем (Troubleshooting)](guides-and-faq/troubleshooting.md) — сгорание радиокаскада без антенны, замеры КСВ, помехи от БП, зависания nRF52.
 - [Юридические аспекты и установка на крышах](guides-and-faq/legal-aspects.md) — законность 868 МГц (до 25 мВт без регистрации в РКН, ПП РФ № 1800), СанПиН 1.2.3685-21, шаблон письма для УК/ТСЖ.
+
+### 6. [Раздел Meshtastic (Архив и история перехода)](meshtastic/index.md)
+Историко-технический архив этапа эксплуатации протокола Meshtastic:
+
+- [История и причины перехода на MeshCore](meshtastic/index.md) — эфирные штормы, лимит 7 хопов и предпосылки общерегиональной миграции.
+- [Сравнение протоколов: Meshtastic vs MeshCore](meshtastic/meshtastic-vs-meshcore.md) — подробный архитектурный сравнительный анализ.
+- [Архивные частоты и канал «Stavropol»](meshtastic/legacy-frequencies-and-channels.md) — Слот 2 (869.075 МГц), пресет LongFast, ключ AES-256.
+- [Конфигурация узлов и портов Meshtastic](meshtastic/repeater-and-node-config.md) — фильтрация `CORE_PORTNUMS_ONLY` и роли устройств.
+- [Прошивка и клиентский софт Meshtastic](meshtastic/firmware-and-apps.md) — flasher.meshtastic.org, клиенты Android/iOS, ATAK Forwarder и очистка памяти.
 
 ---
 *Wiki автоматически собрана на основе логов телеграм-сообщества «Meshcore СКФО».*

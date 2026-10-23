@@ -1,6 +1,6 @@
-# Инструкция по прошивке оборудования (MeshCore / Meshtastic)
+# Инструкция по прошивке оборудования MeshCore
 
-В данном руководстве собраны методы прошивки микроконтроллеров ESP32 и nRF52840, ссылки на рекомендуемые веб-прошивальщики, инструкции по восстановлению загрузчика OTAFIX и оптимизации энергопотребления чипов.
+В данном руководстве собраны методы прошивки микроконтроллеров ESP32 и nRF52840 микроядром MeshCore, ссылки на рекомендуемые веб-прошивальщики, инструкции по восстановлению загрузчика OTAFIX и оптимизации энергопотребления чипов.
 
 ---
 
@@ -12,7 +12,7 @@
 flowchart LR
     DEV["Плата через USB<br/>(ESP32-S3 / nRF52840)"]
     BROWSER["Браузер Chrome / Edge / Yandex<br/>(Драйвер Web Serial API)"]
-    REPO["Онлайн-каталог прошивок<br/>(skmesh.ru / flasher.meshtastic.org)"]
+    REPO["Онлайн-каталог прошивок MeshCore<br/>(skmesh.ru / flasher.meshcore.co.uk)"]
 
     DEV <-->|Прямой обмен по USB-COM| BROWSER
     BROWSER <-->|Загрузка актуального .bin / .hex| REPO
@@ -29,8 +29,9 @@ flowchart LR
 3. **[mrekin.duckdns.org/flasher](https://mrekin.duckdns.org/flasher)**:
     - Каталог кастомных сборок от российского разработчика `@mrekin`.
     - Оптимизированные и облегченные версии для платформ nRF52 и ESP32.
-4. **[flasher.meshtastic.org](https://flasher.meshtastic.org)**:
-    - Официальный прошивальщик для протокола Meshtastic (если требуется вернуться на стоковую прошивку).
+
+!!! note "Прошивка и возврат на Meshtastic"
+    Инструкция по работе со стоковым прошивальщиком `flasher.meshtastic.org` и процедура отката при тестировании вынесены в специальный раздел [Прошивка и клиентский софт Meshtastic](../meshtastic/firmware-and-apps.md).
 
 ---
 
@@ -67,7 +68,7 @@ flowchart LR
 pip install esptool
 ```
 
-Полное стирание памяти (рекомендуется при смене протокола Meshtastic <-> MeshCore):
+Полное стирание памяти (рекомендуется при первичной установке MeshCore или перепрошивке):
 ```bash
 esptool.py --port /dev/ttyUSB0 erase_flash
 ```
