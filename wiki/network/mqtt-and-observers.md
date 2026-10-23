@@ -46,7 +46,7 @@ flowchart LR
     AIR -->|1. Прием пакетов из эфира| GATE
     GATE -->|2. Uplink разрешен| BROKER
     BROKER -.->|3. Downlink ЗАПРЕЩЕН| BLK["БЛОКИРОВКА ВБРОСА В ЭФИР"]
-    BLK -.x AIR
+    BLK --x|Сброс пакета / Запрет передачи| AIR
 ```
 
 ---
