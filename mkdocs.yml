@@ -1,0 +1,76 @@
+site_name: Meshcore СКФО Wiki
+docs_dir: wiki
+site_description: База знаний регионального сообщества радиолюбительской ячеистой сети LoRa / MeshCore / Meshtastic на Северном Кавказе
+site_author: Meshcore СКФО
+repo_name: yamixst/meshcore-skfo-wiki
+repo_url: https://github.com/yamixst/meshcore-skfo-wiki
+
+theme:
+  name: material
+  language: ru
+  palette:
+    - scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Переключить на тёмную тему
+    - scheme: slate
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/weather-sunny
+        name: Переключить на светлую тему
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotation
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Главная: index.md
+  - Аппаратное обеспечение:
+      - Сравнение плат и чипов: hardware/boards-comparison.md
+      - Антенны и ВЧ-часть: hardware/antennas-and-rf.md
+      - Питание и солнечные панели: hardware/power-and-solar.md
+      - Корпуса и уличный монтаж: hardware/enclosures-and-weatherproofing.md
+  - Сеть и протоколы:
+      - Частотный план и радиопрофиль: network/frequencies-and-presets.md
+      - Конфигурация репитеров: network/repeater-configuration.md
+      - Маршрутизация и Scopes: network/routing-and-scopes.md
+      - MQTT и наблюдатели: network/mqtt-and-observers.md
+  - Прошивки и ПО:
+      - Meshtastic vs MeshCore: firmware-and-software/meshtastic-vs-meshcore.md
+      - Инструкция по прошивке: firmware-and-software/flashing-guide.md
+      - Клиентские приложения: firmware-and-software/client-apps.md
+  - Топография и география:
+      - Магистральный хребет и высоты: topology-and-geography/regional-backbone.md
+      - Городские кластеры: topology-and-geography/city-clusters.md
+      - Рекорды дальности: topology-and-geography/records-and-propagation.md
+  - Инструкции и FAQ:
+      - Быстрый старт: guides-and-faq/quick-start.md
+      - Решение проблем (Troubleshooting): guides-and-faq/troubleshooting.md
+      - Юридические аспекты и крыши: guides-and-faq/legal-aspects.md

@@ -1,0 +1,16 @@
+# Deployment and build files
+site/
+__pycache__/
+*.pyc
+
+# Telegram exports and raw media
+result.json
+photos/
+files/
+voice_messages/
+compact_chat.txt
+compact_part_*.txt
+
+# Temporary telegraph tokens
+telegraph_token.txt
+telegraph_urls.json
