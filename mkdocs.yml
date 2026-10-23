@@ -38,6 +38,10 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - javascripts/mermaid.js
+
 markdown_extensions:
   - admonition
   - pymdownx.details
