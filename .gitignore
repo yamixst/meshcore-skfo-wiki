@@ -11,6 +11,10 @@ voice_messages/
 compact_chat.txt
 compact_part_*.txt
 
-# Temporary telegraph tokens
+# Temporary telegraph tokens and scripts
 telegraph_token.txt
 telegraph_urls.json
+publish_to_telegraph.py
+
+# Interim analysis files
+analysis_part_*.md
