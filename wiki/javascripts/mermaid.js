@@ -5,11 +5,63 @@ const initMermaidWithPanZoom = async () => {
     return;
   }
 
+  // Ожидаем загрузки веб-шрифтов, чтобы расчет размеров блоков (bounding box) был точным
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch (_) {}
+  }
+
   const isDark = document.body.getAttribute("data-md-color-scheme") === "slate";
+  const font = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: "loose",
     theme: isDark ? "dark" : "default",
+    fontFamily: font,
+    fontSize: 13,
+    flowchart: {
+      htmlLabels: true,
+      useMaxWidth: false,
+      padding: 24,
+      nodeSpacing: 50,
+      rankSpacing: 50,
+      curve: "basis",
+    },
+    themeVariables: {
+      fontFamily: font,
+      fontSize: "13px",
+    },
+    themeCSS: `
+      .label {
+        font-family: ${font} !important;
+        font-size: 13px !important;
+        line-height: 1.25 !important;
+        letter-spacing: normal !important;
+      }
+      .label foreignObject {
+        line-height: 1.25 !important;
+        overflow: visible !important;
+      }
+      .label foreignObject div {
+        line-height: 1.25 !important;
+        letter-spacing: normal !important;
+        text-align: center;
+        font-family: ${font} !important;
+      }
+      .label foreignObject span.nodeLabel {
+        line-height: 1.25 !important;
+        letter-spacing: normal !important;
+        font-family: ${font} !important;
+        display: inline-block;
+      }
+      .edgeLabel {
+        font-family: ${font} !important;
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+      }
+    `,
   });
 
   // Находим все контейнеры диаграмм (с поддержкой fence_div_format и стандартных pre)

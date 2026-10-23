@@ -106,6 +106,9 @@ curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/s
   align-items: center;
   justify-content: center;
   cursor: grab;
+  /* Изоляция типографики диаграмм от наследования стилей .md-typeset */
+  line-height: normal !important;
+  letter-spacing: normal !important;
 }
 
 .mermaid-viewport:active {
@@ -116,6 +119,40 @@ curl -sSL -o wiki/javascripts/svg-pan-zoom.min.js https://cdn.jsdelivr.net/npm/s
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
+  font-family: var(--md-text-font, "Inter", sans-serif) !important;
+}
+
+/* Фиксация шрифта и высоты строки внутри блоков Mermaid */
+.mermaid-viewport .label,
+.mermaid-viewport .nodeLabel,
+.mermaid-viewport .edgeLabel {
+  font-family: var(--md-text-font, "Inter", sans-serif) !important;
+  letter-spacing: normal !important;
+}
+
+.mermaid-viewport .label foreignObject {
+  line-height: 1.25 !important;
+  overflow: visible !important;
+}
+
+.mermaid-viewport .label foreignObject div {
+  line-height: 1.25 !important;
+  letter-spacing: normal !important;
+  font-family: var(--md-text-font, "Inter", sans-serif) !important;
+  text-align: center;
+}
+
+.mermaid-viewport .label foreignObject span.nodeLabel {
+  line-height: 1.25 !important;
+  letter-spacing: normal !important;
+  font-family: var(--md-text-font, "Inter", sans-serif) !important;
+  display: inline-block;
+  white-space: normal;
+}
+
+.mermaid-viewport .edgeLabel {
+  line-height: 1.2 !important;
+  font-size: 11px !important;
 }
 ```
 
