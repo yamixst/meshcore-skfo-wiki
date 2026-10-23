@@ -23,7 +23,7 @@ Wiki создана на основе реального практическо�
 Региональный радиопрофиль, частотный план и топология ячеек:
 
 - [Частотный план и радиопрофиль](network/frequencies-and-presets.md) — частоты 868.900 МГц (СКФО), 869.075 МГц (КРД), магистраль 868.700–869.200 МГц, BW 62.5 / SF 8 / CR 8.
-- [Конфигурация репитеров и подавление штормов](network/repeater-configuration.md) — эталонные параметры CLI (cad on, direct.txdelay, rxdelay), роли нод CLIENT_MUTE vs ROUTER.
+- [Конфигурация репитеров и подавление штормов](network/repeater-configuration.md) — эталонные параметры CLI (cad on, direct.txdelay, rxdelay), архитектура Клиент vs Репитер.
 - [Маршрутизация, Scopes и мосты](network/routing-and-scopes.md) — разделение потоков по гео-зонам (ISO 3166-2), фильтрация флуда denyf, кросс-частотные шлюзы.
 - [MQTT, наблюдатели и сервисы](network/mqtt-and-observers.md) — шлюз onemesh.ru, топики msh/RU/STV, сервис SkMesh.ru, прошивка VBart Observer.
 
